@@ -1,0 +1,109 @@
+---
+title: "creditcard_ambm"
+author: "Angela"
+date: "5/9/2021"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## business problem/goal
+
+In this R project, I will present how to perform detention of credit card frauds, through the verious algortihms like desicion tree model, and logistics regrresion model. 
+
+For carrying out the credit card fraud detection, I will make use of the Card Transactions dataset that contains a mix of fraud as well as non-fraudulent transactions.
+
+The file has 56 observation of 8 variables, it was imported from a CSV file
+
+## getting the data
+
+```{r creditcard}
+summary(creditcard)
+```
+
+##see first 6 rows of my data
+
+
+```{r}
+head(creditcard, 6)
+
+```
+
+##view and rename a column
+
+##now rename V1 
+
+```{r creditcard}
+colnames(creditcard)[colnames(creditcard)=='V1']<-'1V'
+
+colnames(creditcard)
+```
+##characteristics of my data
+
+The creditcard data has `r ncol(creditcard)` rows and `r nrow(creditcard)`rows. Bellow is a summary of the types of variables in the dataset:
+
+
+```{r creditcard}
+str(creditcard)
+```
+##the characteristics tables
+
+```{r}
+text_tbl<-data.frame(names = c("Amount", "Class"), Description = c("this is the amount expend per transaccion", "this is the class identified per transaccion"))
+
+#to print the table in my output:
+
+print(text_tbl)
+```
+## ## Data exploration
+
+```{r}
+dim(creditcard)
+tail(creditcard)
+table(creditcard$Class)
+summary(creditcard$Amount)
+names(creditcard)
+var(creditcard$Amount)
+sd(creditcard$Amount)
+```
+
+## Data Manipulation
+```{r}
+head(creditcard)
+creditcard$Amount=scale(creditcard$Amount)
+newcreditcard=creditcard[,-c(1)]
+head(newcreditcard)
+```
+##Data Modeling
+```{r}
+library(caTools)
+set.seed(123)
+data_sample= sample.split(newcreditcard$Class, SplitRatio = 0.80)
+train_data= subset(newcreditcard, data_sample==TRUE)
+test_data= subset(newcreditcard, data_sample==FALSE)
+dim(train_data)
+dim(test_data)
+```
+## decision tree model
+```{r}
+library(rpart)
+install.packages("rpart.plot")
+library(rpart.plot)
+decisionTree_model <- rpart(Class ~ . , creditcard, method = 'class')
+predicted_val <- predict(decisionTree_model, creditcard, type = 'class')
+probability <- predict(decisionTree_model, creditcard, type = 'prob')
+rpart.plot(decisionTree_model)
+```
+
+## Logistics regression model
+```{r}
+Logistic_Model=glm(Class~.,test_data,family=binomial())
+summary(Logistic_Model)
+
+plot(Logistic_Model)
+```
